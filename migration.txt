@@ -1,0 +1,2 @@
+yarn sequelize db:migrate:undo = disfaz a migration, desfazer a ultima vez que rodei
+yarn sequelize db:migrate:undo:all = disfaz toda as migration
