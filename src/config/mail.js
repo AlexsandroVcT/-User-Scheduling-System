@@ -4,12 +4,12 @@
  */
 
 export default {
-  host: "smtp.mailtrap.io", //Enviar o Email atraves de SMTP
-  port: 2525,
+  host: process.env.MAIL_HOST, //Enviar o Email atraves de SMTP
+  port: process.env.MAIL_PORT,
   secure: false, //se ele esta ùtilizando SSL Ou não , se é seguro ou n
   auth: {
-    user: "535b797e2b26e4",
-    pass: "7613e8cf41a71e",
+    user: process.env.MAIL_USER,
+    pass: process.env.MAIL_PASS,
   },
   default: {
     from: 'Equipe perforgram <alexsandro@perforgram.com',

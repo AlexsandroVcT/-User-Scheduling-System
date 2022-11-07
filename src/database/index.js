@@ -25,11 +25,11 @@ class Database {
       .map(model => model.associate && model.associate(this.connection.models));
   }
   mongo() {
-    this.mongoConnection = new mongoose.connect(
-      'mongodb://localhost:27017/gobarber',
-      { useNewUrlParser: true }
-      //  useFindAndModify: true, =  useFindAndModify Esta desatualizado , então nao usamos mais
-    );
+    this.mongoConnection = new mongoose.connect(process.env.MONGO_URL, {
+      useNewUrlParser: true,
+      useFindAndModify: true,
+    });
+
   }
 
 }

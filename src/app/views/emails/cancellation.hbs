@@ -1,9 +1,9 @@
 {{!-- EMAIL DE CANCELAMENTO --}}
-<strong>Olá, {{ provider }}</strong>
+<strong>Olá, {{{ provider }}}</strong> {{!-- provider = prestador de servios--}}
 <p>Houve um cancelamento de horário, confira os detalhes abaixo:</p>
 <p>
-  <strong>Cliente: </strong> {{ user }} <br />
-  <strong>Data/hora: </strong> {{ date }} <br />
+  <strong>Cliente: </strong> {{{ user }}} <br /> {{!-- Qual o cliente que cancelou--}}
+  <strong>Data/hora: </strong> {{{ date }}} <br /> {{!-- Data e Hora que o agendamento foi cancelado--}}
   <br />
   <small>
     O horário está novamente disponível para novos agendamentos.

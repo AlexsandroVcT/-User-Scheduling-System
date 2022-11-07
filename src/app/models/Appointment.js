@@ -1,5 +1,6 @@
 // Migration e model de agendamento
 import Sequelize, { Model } from "sequelize";
+import { isBefore, subHours } from "date-fns";
 
 class Appointment extends Model {
   static init(sequelize) {
@@ -7,8 +8,18 @@ class Appointment extends Model {
       {
         date: Sequelize.DATE,
         canceled_at: Sequelize.DATE,
-        // provider_id: Sequelize.NUMBER,
-        // user_id: Sequelize.NUMBER
+        path: {
+          type: Sequelize.VIRTUAL,
+          get() {
+            return isBefore(this.date, new Date());
+          },
+        },
+        cancelable: {
+          type: Sequelize.VIRTUAL,
+          get() {
+            return isBefore(new Date(), subHours(this.date, 2));
+          },
+        },
       },
       {
         sequelize,

@@ -7,7 +7,10 @@ import File from '../models/File';
 import Appointment from "../models/Appointment";
 import Notification from '../schemas/Notification';
 
-import Mail from '../../lib/Mail';
+import CancellationMail from '../jobs/CancellationMail';
+import Queue from '../../lib/Queue';
+
+// const Mail = require('../../lib/Mail');
 
 class AppointmentController {
   // Listando agendamentos do usuário
@@ -17,7 +20,7 @@ class AppointmentController {
     const appointments = await Appointment.findAll({
       where: { user_id: req.userId, canceled_at: null },
       order: ['date'], //order em array, posso ter varias ordernaçoes
-      attributes: ['id', 'date'],
+      attributes: ['id', 'date', 'path', 'cancelable'],
       limit: 20, //limite da  paginação
       offset: (page - 1) * 20, //pulando nenhum registro,  paginação
       include: [ //dados do prestador de serviços
@@ -67,7 +70,6 @@ class AppointmentController {
     /**
      * Verifique as datas anteriores
      */
-    console.log(date, parseISO(date))
     const hourStart = startOfHour(parseISO(date));
 
     if (isBefore(hourStart, new Date())) {
@@ -77,7 +79,6 @@ class AppointmentController {
     /**
      * Verifique a disponibilidade de datas
      */
-    console.log(hourStart)
     const checkAvailability = await Appointment.findOne({
       where: {
         provider_id,
@@ -85,7 +86,6 @@ class AppointmentController {
         date: hourStart,
       },
     });
-
 
     if (checkAvailability) {
       return res.status(400).json({ error: 'A data de agendamento não está disponível' });
@@ -103,7 +103,7 @@ class AppointmentController {
     const user = await User.findByPk(req.userId);
     const formattedDate = format(
       hourStart,
-      "'dia' dd 'de' MMMM', ás' HH:mm'h'",
+      "'dia' dd 'de' MMMM', ás' H:mm'h'",
       { locale: pt }
     )
     await Notification.create({
@@ -131,16 +131,16 @@ class AppointmentController {
         }
       ],
     });
+    console.log(appointment.user_id)
 
-    console.log(req.userId)
     if (appointment.user_id != req.userId) {
       return res.status(401).json({
         error: "Você não tem permissão para cancelar este compromisso"
       });
     }
-    console.log(dateWithSub)
     // Verificação de date , ele tem que cancela 2 horas antes
     const dateWithSub = subHours(appointment.date, 2); //removendo 2 horas do horario do agendamento
+    console.log(dateWithSub)
     // Exemplo: 13:00 - 2 Horas = dateWithSub 11Hrs
     // now: 11:25H , ja passou não consigo agendar
     if (isBefore(dateWithSub, new Date())) {
@@ -149,26 +149,14 @@ class AppointmentController {
       });
     }
 
-    appointment.canceled_at = new Date();
+    appointment.canceled_at = new Date(); //Ta pegando a data atual do cancelamento
 
     await appointment.save();
-
-    // Enviando algumas informaçoes para o prestador de serviços
-    await Mail.sendMail({
-      to: `${appointment.provider.name} <${appointment.provider.email}>`, //Formato para escrever o remetente e o destinatário do email
-      subject: 'Agendemanto cancelado',
-      template: 'cancellation',
-      context: {
-        provider: appointment.provider.name,
-        user: appointment.user.name,
-        date: format(
-          appointment.date,
-          "'dia' dd 'de' MMMM', ás' H:mm'h'",
-          { locale: pt }
-        )
-      }
-    });
-
+    // console.log(appointment.provider.name, appointment.provider.email, appointment.user.name,
+    //   appointment.date)
+    await Queue.add(CancellationMail.key, {
+      appointment,
+    })
     return res.json(appointment);
   }
 }
