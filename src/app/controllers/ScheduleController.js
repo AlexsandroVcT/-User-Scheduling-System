@@ -1,9 +1,9 @@
 // LISTAGEM UNICA PRO PRESTADOR DE SERVIÇOS
-import { startOfDay, endOfDay, parseISO } from 'date-fns';
-import { Op } from 'sequelize';
+import { startOfDay, endOfDay, parseISO } from "date-fns";
+import { Op } from "sequelize";
 
-import Appointment from '../models/Appointment';
-import User from '../models/User';
+import User from "../models/User";
+import Appointment from "../models/Appointment";
 
 // CONTROLADOR DE AGENDAMENTO
 class ScheduleController {
@@ -11,8 +11,7 @@ class ScheduleController {
     // verificação se o usuario que esta logado é prestador de serviços
     const checkUserProvider = await User.findOne({
       where: { id: req.userId, provider: true },
-    });
-
+    })
     if (!checkUserProvider) {
       return res.status(401).json({ error: 'O usuário não é um provedor' });
     }
@@ -32,13 +31,6 @@ class ScheduleController {
           [Op.between]: [startOfDay(parsedDate), endOfDay(parsedDate)], //que a data esta entre o começo eo final do dia que recebemos como parametros
         },
       },
-      include: [
-        {
-          model: User,
-          as: 'user',
-          attributes: ['name'],
-        },
-      ],
       order: ['date'],
     });
     return res.json(appointments);

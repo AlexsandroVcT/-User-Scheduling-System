@@ -13,6 +13,8 @@ export default {
     filename: (req, file, cb) => { //recebendo os 3 parametros requeri, file, callback
       crypto.randomBytes(16, (err, res) => {
         if (err) return cb(err);
+
+
         return cb(null, res.toString('hex') + extname(file.originalname)) //transformando 16bits de conteudo aleatorio em uma string hex decimal
       });
     },

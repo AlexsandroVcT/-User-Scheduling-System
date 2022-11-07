@@ -19,6 +19,7 @@ class Database {
   init() {
     // metodo init , que irar fazer a conecção com a base de dados e carregar nossos models
     this.connection = new Sequelize(databaseConfig);
+
     models
       .map(model => model.init(this.connection)) //Pecorrendo cada um dos model
       .map(model => model.associate && model.associate(this.connection.models));

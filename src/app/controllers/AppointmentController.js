@@ -6,15 +6,12 @@ import User from '../models/User';
 import File from '../models/File';
 import Appointment from "../models/Appointment";
 import Notification from '../schemas/Notification';
-// import CancellationMail from '../jobs/CancellationMail';
-// import Queue from '../../lib/Queue';
 
 import Mail from '../../lib/Mail';
 
 class AppointmentController {
   // Listando agendamentos do usuário
   async index(req, res) {
-    this.configureTemplates(); //Error no terminal , sendo que o this.configureTemplates() é uma function
     const { page = 1 } = req.query; //Aplicando paginação
 
     const appointments = await Appointment.findAll({
@@ -30,12 +27,13 @@ class AppointmentController {
           attributes: ['id', 'name'],
           include: [
             {
-              model: File, as: 'avatar', attributes: ['id', 'path', 'url']
+              model: File,
+              as: 'avatar',
+              attributes: ['id', 'path', 'url'],
             },
           ],
         },
       ],
-
     });
     return res.json(appointments)
   }
@@ -69,6 +67,7 @@ class AppointmentController {
     /**
      * Verifique as datas anteriores
      */
+    console.log(date, parseISO(date))
     const hourStart = startOfHour(parseISO(date));
 
     if (isBefore(hourStart, new Date())) {
@@ -78,6 +77,7 @@ class AppointmentController {
     /**
      * Verifique a disponibilidade de datas
      */
+    console.log(hourStart)
     const checkAvailability = await Appointment.findOne({
       where: {
         provider_id,
@@ -85,6 +85,7 @@ class AppointmentController {
         date: hourStart,
       },
     });
+
 
     if (checkAvailability) {
       return res.status(400).json({ error: 'A data de agendamento não está disponível' });
@@ -104,7 +105,7 @@ class AppointmentController {
       hourStart,
       "'dia' dd 'de' MMMM', ás' HH:mm'h'",
       { locale: pt }
-    );
+    )
     await Notification.create({
       content: `Novo agendamento de ${user.name} para ${formattedDate}`,
       user: provider_id,
@@ -126,16 +127,18 @@ class AppointmentController {
         {
           model: User,
           as: 'user',
-          attributes: ['id', 'name'],
-        },
+          attributes: ['name'],
+        }
       ],
     });
 
+    console.log(req.userId)
     if (appointment.user_id != req.userId) {
       return res.status(401).json({
         error: "Você não tem permissão para cancelar este compromisso"
       });
     }
+    console.log(dateWithSub)
     // Verificação de date , ele tem que cancela 2 horas antes
     const dateWithSub = subHours(appointment.date, 2); //removendo 2 horas do horario do agendamento
     // Exemplo: 13:00 - 2 Horas = dateWithSub 11Hrs
@@ -149,10 +152,6 @@ class AppointmentController {
     appointment.canceled_at = new Date();
 
     await appointment.save();
-
-    // await Queue.add(cancellationMail.key, {
-    //   appointment,
-    // });
 
     // Enviando algumas informaçoes para o prestador de serviços
     await Mail.sendMail({

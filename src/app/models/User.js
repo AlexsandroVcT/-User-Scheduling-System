@@ -1,10 +1,12 @@
 import Sequelize, { Model } from 'sequelize';
+
 import bcrypt from 'bcryptjs';
 
 class User extends Model {
   static init(sequelize) {
     super.init( //Chamando o metodo init , da class Model
       {
+
         // Enviar as colunas atravez de um objetos, Podemos evitar as chaves primarias as chaves estrangeiras ....
         name: Sequelize.STRING,
         email: Sequelize.STRING,

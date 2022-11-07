@@ -1,6 +1,5 @@
 // Migration e model de agendamento
 import Sequelize, { Model } from "sequelize";
-// import { isBefore, subHours } from 'date-fns';
 
 class Appointment extends Model {
   static init(sequelize) {
@@ -13,7 +12,7 @@ class Appointment extends Model {
       },
       {
         sequelize,
-      },
+      }
     );
 
     return this;
