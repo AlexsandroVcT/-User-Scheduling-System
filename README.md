@@ -22,7 +22,7 @@ Agendamento Cancelado 2 Horas antes do Horario Marcado
 Agendamento Cancelado, Com Sistema de Envio de Email
 ![Cancelamento-com_Envio-de-Email](https://user-images.githubusercontent.com/101852187/200418244-ef76775d-2e1e-42c3-9a9b-b016648410b9.png)
 
-Sistema de Erros caso houver na aplicação
+Sistema de Erros se acontecer durante a aplicação
 ![Sistem-Erros](https://user-images.githubusercontent.com/101852187/200418845-11ef72a1-3c9c-47be-a57d-9b2d3c29d292.png)
 
 Sistema de Envio de Emails de Erros se surgirem na aplicação
